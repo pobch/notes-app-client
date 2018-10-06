@@ -4,9 +4,9 @@ import Home from './containers/Home'
 import Login from './containers/Login'
 import NotFound from './containers/NotFound'
 
-export default () =>
+export default (props) =>
   <Switch>
-    <Route path="/" exact component={Home} />
-    <Route path="/login" exact component={Login} />
+    <Route path="/" exact render={routeProps => <Home {...routeProps} {...props.childProps}/>} />
+    <Route path="/login" exact render={routeProps => <Login {...routeProps} {...props.childProps} />} />
     <Route component={NotFound} />
   </Switch>

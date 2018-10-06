@@ -7,7 +7,24 @@ import './App.css';
 import Routes from './Routes';
 
 class App extends Component {
+  state = {
+    isAuthenticated: false
+  }
+
+  userHasAuthenticated = authenticated => {
+    this.setState({ isAuthenticated: authenticated })
+  }
+
+  handleLogout = () => {
+    this.userHasAuthenticated(false)
+  }
+
   render() {
+    const childProps = {
+      isAuthenticated: this.state.isAuthenticated,
+      userHasAuthenticated: this.userHasAuthenticated
+    }
+
     return (
       <div className="App container">
         <Navbar fluid collapseOnSelect>
@@ -19,16 +36,21 @@ class App extends Component {
           </Navbar.Header>
           <Navbar.Collapse>
             <Nav pullRight>
-              <LinkContainer to="/signup">
-                <NavItem>Sign up</NavItem>
-              </LinkContainer>
-              <LinkContainer to="/login">
-                <NavItem>Log in</NavItem>
-              </LinkContainer>
+              {this.state.isAuthenticated
+                ? <NavItem onClick={this.handleLogout}>Log out</NavItem>
+                : <React.Fragment>
+                    <LinkContainer to="/signup">
+                      <NavItem>Sign up</NavItem>
+                    </LinkContainer>
+                    <LinkContainer to="/login">
+                      <NavItem>Log in</NavItem>
+                    </LinkContainer>
+                  </React.Fragment>
+              }
             </Nav>
           </Navbar.Collapse>
         </Navbar>
-        <Routes />
+        <Routes childProps={childProps} />
       </div>
     );
   }
