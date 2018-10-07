@@ -15,10 +15,12 @@ class App extends Component {
 
   async componentDidMount() {
     try {
-      const session = await Auth.currentSession()
+      await Auth.currentSession()
       this.userHasAuthenticated(true)
     } catch(errorMsg) {
-      console.log(errorMsg)
+      if(errorMsg !== 'No current user') {
+        alert(errorMsg)
+      }
       this.userHasAuthenticated(false)
     }
   }
