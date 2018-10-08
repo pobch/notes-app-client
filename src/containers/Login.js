@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import { Auth } from 'aws-amplify'
-import { Button, FormGroup, FormControl, ControlLabel } from 'react-bootstrap'
+import { FormGroup, FormControl, ControlLabel } from 'react-bootstrap'
+import LoaderButton from '../components/LoaderButton'
 import './Login.css'
 
 export default class Login extends Component {
   state = {
+    isLoading: false,
     email: '',
     password: ''
   }
@@ -12,11 +14,15 @@ export default class Login extends Component {
   handleSubmit = async event => {
     event.preventDefault()
 
+    this.setState({ isLoading: true })
+
     try {
       await Auth.signIn(this.state.email, this.state.password)
       this.props.userHasAuthenticated(true)
+      this.props.history.push('/')
     } catch (e) {
       alert(e.message)
+      this.setState({ isLoading: false })
     }
   }
 
@@ -52,14 +58,15 @@ export default class Login extends Component {
               onChange={this.handleChange}
             />
           </FormGroup>
-          <Button
+          <LoaderButton
             block
             type="submit"
             bsSize="large"
             disabled={!this.validateForm()}
-          >
-            Log in
-          </Button>
+            text="Log in"
+            loadingText="Loading..."
+            isLoading={this.state.isLoading}
+          />
         </form>
       </div>
     )

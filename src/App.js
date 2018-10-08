@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Navbar, Nav, NavItem } from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { Auth } from 'aws-amplify'
 import './Routes'
 import './App.css';
@@ -35,6 +35,7 @@ class App extends Component {
   handleLogout = async () => {
     await Auth.signOut()
     this.userHasAuthenticated(false)
+    this.props.history.push('/login')
   }
 
   render() {
@@ -75,4 +76,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(App);
