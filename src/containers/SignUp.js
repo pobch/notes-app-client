@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Auth } from 'aws-amplify'
 import { HelpBlock, FormGroup, FormControl, ControlLabel } from 'react-bootstrap'
 import LoaderButton from '../components/LoaderButton'
 import './SignUp.css'
@@ -25,18 +26,39 @@ class SignUp extends Component {
     return this.state.confirmationCode.length > 0
   }
 
-  handleSubmit = event => {
+  handleSubmit = async event => {
     event.preventDefault()
+
     this.setState({ isLoading: true })
-    this.setState({
-      newUser: 'test user',
-      isLoading: false
-    })
+    
+    try {
+      const newUser = await Auth.signUp({
+        username: this.state.email,
+        password: this.state.password
+      })
+      this.setState({ newUser })
+    } catch(error) {
+      alert(error.message)
+    }
+
+    this.setState({ isLoading: false })
   }
 
-  handleConfirmationSubmit = event => {
+  handleConfirmationSubmit = async event => {
     event.preventDefault()
+
     this.setState({ isLoading: true })
+
+    try {
+      await Auth.confirmSignUp(this.state.email, this.state.confirmationCode)
+      await Auth.signIn(this.state.email, this.state.password)
+
+      this.props.userHasAuthenticated(true)
+      this.props.history.push('/')
+    } catch(error) {
+      alert(error.message)
+      this.setState({ isLoading: false })
+    }
   }
 
   handleChange = event => {
