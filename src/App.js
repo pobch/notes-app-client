@@ -17,9 +17,9 @@ class App extends Component {
     try {
       await Auth.currentSession()
       this.userHasAuthenticated(true)
-    } catch(errorMsg) {
-      if(errorMsg !== 'No current user') {
-        alert(errorMsg)
+    } catch(error) {
+      if(error !== 'No current user') {
+        alert(error)
       }
       this.userHasAuthenticated(false)
     }

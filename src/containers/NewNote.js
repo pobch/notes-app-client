@@ -44,7 +44,7 @@ class NewNote extends Component {
       
       this.props.history.push('/')
     } catch(error) {
-      alert(error.message) // My PR: should be error.message
+      alert(error) // In case of 'Network Error', the `error` will be an object!! 
       this.setState({ isLoading: false })
     }
   }
