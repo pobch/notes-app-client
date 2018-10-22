@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import { API, Storage } from 'aws-amplify'
 import { FormGroup, FormControl, ControlLabel } from 'react-bootstrap'
 import config from '../config'
+import { s3Upload } from '../libs/awsLib'
 import LoaderButton from '../components/LoaderButton'
+import './Notes.css'
 
 class Notes extends Component {
   state = {
@@ -38,6 +40,10 @@ class Notes extends Component {
     return API.get('notes', `/notes/${this.props.match.params.id}`)
   }
 
+  saveNote = note => {
+    return API.put('notes', `/notes/${this.props.match.params.id}`, { body: note })
+  }
+
   handleSubmit = async event => {
     event.preventDefault()
 
@@ -47,22 +53,15 @@ class Notes extends Component {
     }
 
     this.setState({ isLoading: true })
+    let attachment
     try {
-      let attachment
       if (this.file) {
-        // s3Upload
-        const stored = await Storage.vault.put(`${Date.now()}-${this.file.name}`, this.file, {
-          contentType: this.file.type
-        })
-        attachment = stored.key
-        // end of s3Upload
+        attachment = await s3Upload(this.file)
       }
 
-      await API.put('notes', `/notes/${this.props.match.params.id}`, {
-        body: {
-          content: this.state.content,
-          attachment: attachment || this.state.note.attachment
-        }
+      await this.saveNote({
+        content: this.state.content,
+        attachment: attachment || this.state.note.attachment
       })
       this.props.history.push('/')
     } catch(error) {
@@ -89,13 +88,20 @@ class Notes extends Component {
     return this.state.content.length > 0
   }
 
-  handleDelete = event => {
+  handleDelete = async () => {
     const confirmed = window.confirm('Are you sure you want to delete this note?')
     if (!confirmed) {
       return
     }
 
     this.setState({ isDeleting: true })
+    try {
+      await API.del('notes', `/notes/${this.props.match.params.id}`)
+      this.props.history.push('/')
+    } catch(error) {
+      alert(error)
+      this.setState({ isDeleting: false })
+    }
   }
 
   render() {
